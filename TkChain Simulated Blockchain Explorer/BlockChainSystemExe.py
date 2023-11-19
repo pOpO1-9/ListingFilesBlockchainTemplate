@@ -225,7 +225,4 @@ result_text.config(state=tk.DISABLED)
 status_label = ttk.Label(root, text="", foreground="blue")
 status_label.place(x=20, y=500)
 
-# Create the blockchain
-# blockchain = Blockchain()
-
 root.mainloop()
