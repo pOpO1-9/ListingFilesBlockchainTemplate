@@ -27,4 +27,5 @@ Threading is used to simulate a typewriter effect when displaying search results
 
 Message Boxes:
 Message boxes are used to show information or error messages, such as successful login, registration, or login failure.
+
 Overall, this application provides a basic interface to interact with a simulated blockchain, allowing users to register, log in, add files to blocks, create new blocks, and search the blockchain. It serves as an educational example of a blockchain GUI using Tkinter in Python.
