@@ -1,11 +1,12 @@
 # ListingFilesBlockchainTemplate
-This is a simple graphical user interface (GUI) application built with Tkinter in Python to simulate a basic blockchain system. Here's a description of the key components and functionalities:
+This is a simple graphical user interface (GUI) application built with Tkinter in Python to simulate a basic blockchain system. 
+Here's a description of the key components and functionalities:
 
 Blockchain Class:
 Represents a blockchain and contains methods for creating the genesis block and adding new blocks.
 Each block has a timestamp, data, previous hash, name, and its own hash, calculated based on these attributes.
-User Registration and Login:
 
+User Registration and Login:
 Users can register with a username and password, and their hashed passwords are stored in a dictionary (Blockchain.user_accounts).
 Users can log in with their credentials, and the application checks if the entered password matches the stored hashed password.
 
@@ -23,9 +24,12 @@ Users can create new blocks by entering block name and data.
 Users can search the blockchain based on data or block name, and the results are displayed with a typewriter effect.
 
 Threading:
-Threading is used to simulate a typewriter effect when displaying search results. This prevents the GUI from freezing while displaying results character by character.
+Threading is used to simulate a typewriter effect when displaying search results. This prevents the GUI from freezing while displaying 
+results character by character.
 
 Message Boxes:
 Message boxes are used to show information or error messages, such as successful login, registration, or login failure.
 
-Overall, this application provides a basic interface to interact with a simulated blockchain, allowing users to register, log in, add files to blocks, create new blocks, and search the blockchain. It serves as an educational example of a blockchain GUI using Tkinter in Python.
+Overall, this application provides a basic interface to interact with a simulated blockchain, 
+allowing users to register, log in, add files to blocks, create new blocks, and search the blockchain. 
+It serves as an educational example of a blockchain GUI using Tkinter in Python.
