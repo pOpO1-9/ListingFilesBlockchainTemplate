@@ -317,11 +317,11 @@
     const STORAGE_KEY = "resto-hours-v1";
     const DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
 
+    // Seeded from your message (worked days + offs you listed)
     const seed = [
       { weekday: "Samedi", hours: 9, note: "" },
       { weekday: "Dimanche", hours: 11, note: "" },
-      { weekday: "Lundi", hours: 0, note: "off (nouvelle semaine)" },
-      { weekday: "Mardi", hours: 0, note: "off" },
+      // nouvelle semaine — 2 jours off = mercredi & jeudi
       { weekday: "Lundi", hours: 9, note: "" },
       { weekday: "Mardi", hours: 9, note: "" },
       { weekday: "Mercredi", hours: 0, note: "off" },
