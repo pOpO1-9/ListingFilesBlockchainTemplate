@@ -1,0 +1,4 @@
+node_modules/
+.private-move/
+.env
+.dev.vars
