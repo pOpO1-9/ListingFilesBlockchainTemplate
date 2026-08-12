@@ -1,22 +1,28 @@
-# Heures resto
+# Heures resto (iPhone)
 
-Simple tracker for restaurant shifts at **12 €/h**.
+Compte tes heures de resto à **12 €/h**, avec icône sur l’écran d’accueil.
 
-## Open it
+## Sur iPhone (Safari)
 
-Open [`index.html`](./index.html) in any browser (phone or computer).
+1. Ouvre le lien de l’app
+2. Appuie sur **Partager** (carré avec flèche ↑ en bas)
+3. Choisis **Sur l’écran d’accueil** → **Ajouter**
+4. Ouvre l’icône **Heures resto** — ça marche hors ligne aussi
 
-- Add a day → totals update instantly
-- **+ Jour off** for free days
-- Data is saved in the browser (localStorage)
-- **Exporter CSV** if you want Excel / Sheets
+## Lien permanent (après merge + GitHub Pages)
 
-## Current total (seeded)
+`https://popo1-9.github.io/ListingFilesBlockchainTemplate/`
 
-| | |
+Active Pages une fois : repo → **Settings** → **Pages** → Source = **GitHub Actions**.
+
+## Fichiers
+
+| Élément | Rôle |
 |---|---|
-| Worked hours | **97 h** |
-| Rate | **12 €/h** |
-| Pay | **1 164 €** |
+| `index.html` | L’app |
+| `manifest.webmanifest` + icônes | Installation iPhone |
+| `hours.csv` | Export Excel / Sheets |
 
-Also available as [`hours.csv`](./hours.csv) for spreadsheet use.
+## Total actuel (prérempli)
+
+**97 h × 12 € = 1 164 €**
