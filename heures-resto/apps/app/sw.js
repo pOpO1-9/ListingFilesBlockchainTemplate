@@ -1,7 +1,9 @@
-const CACHE = "heures-resto-v7";
+const CACHE = "heures-resto-commerce-v1";
 const ASSETS = [
   "./",
   "./index.html",
+  "./unlock.html",
+  "./license.js",
   "./manifest.webmanifest",
   "./icon-180.png",
   "./icon-512.png",
