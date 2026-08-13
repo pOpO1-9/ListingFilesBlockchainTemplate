@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f1a15" />
+  <title>Heures resto — Track restaurant hours</title>
+  <meta name="description" content="Calendar for restaurant hours with multi-country tax estimates. Works on Chrome & iPhone. Your data stays on your device." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f1a15;
+      --bg2: #15241d;
+      --ink: #f7faf7;
+      --muted: #c5d5cb;
+      --line: #4d6a5c;
+      --card: #1c2f26;
+      --accent: #b8e39a;
+      --accent-ink: #0f1a15;
+      font-family: "DM Sans", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(1000px 500px at 80% -10%, rgba(184,227,154,.18), transparent 55%),
+        linear-gradient(165deg, var(--bg), var(--bg2));
+    }
+    .wrap { width: min(980px, 100%); margin: 0 auto; padding: 28px 18px 64px; }
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 48px;
+    }
+    .brand {
+      font-family: "Fraunces", serif;
+      font-weight: 700;
+      font-size: 1.35rem;
+      letter-spacing: -0.02em;
+    }
+    .nav-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    a.btn, button.btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font: inherit;
+      font-weight: 700;
+      border-radius: 12px;
+      padding: 12px 16px;
+      border: 1.5px solid transparent;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--accent); color: var(--accent-ink); }
+    .btn-ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+
+    .hero { max-width: 720px; }
+    .hero h1 {
+      margin: 0;
+      font-family: "Fraunces", serif;
+      font-size: clamp(2.4rem, 7vw, 4rem);
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+    }
+    .hero p {
+      margin: 16px 0 0;
+      color: var(--muted);
+      font-size: 1.1rem;
+      line-height: 1.5;
+      max-width: 46ch;
+      font-weight: 600;
+    }
+    .hero-cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .note { margin-top: 14px; color: var(--muted); font-size: 0.9rem; }
+
+    section { margin-top: 64px; }
+    section h2 {
+      margin: 0 0 10px;
+      font-family: "Fraunces", serif;
+      font-size: 1.8rem;
+    }
+    section .lead { color: var(--muted); font-weight: 600; margin: 0 0 22px; max-width: 50ch; }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .feature {
+      background: var(--card);
+      border: 1.5px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+    }
+    .feature h3 { margin: 0 0 8px; font-size: 1.05rem; }
+    .feature p { margin: 0; color: var(--muted); font-weight: 600; line-height: 1.4; }
+
+    .pricing {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .price {
+      background: var(--card);
+      border: 1.5px solid var(--line);
+      border-radius: 18px;
+      padding: 20px;
+      display: grid;
+      gap: 10px;
+    }
+    .price.featured { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+    .price .badge {
+      justify-self: start;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent-ink);
+      background: var(--accent);
+      padding: 4px 8px;
+      border-radius: 999px;
+    }
+    .price h3 { margin: 0; font-family: "Fraunces", serif; font-size: 1.5rem; }
+    .price .amount {
+      font-family: "Fraunces", serif;
+      font-size: 2.4rem;
+      font-weight: 700;
+    }
+    .price ul { margin: 0; padding-left: 1.1rem; color: var(--muted); font-weight: 600; line-height: 1.5; }
+    .price .btn { width: 100%; margin-top: 6px; }
+
+    .faq details {
+      background: var(--card);
+      border: 1.5px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+    }
+    .faq summary { cursor: pointer; font-weight: 700; }
+    .faq p { color: var(--muted); font-weight: 600; line-height: 1.45; }
+
+    footer {
+      margin-top: 64px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: grid;
+      gap: 8px;
+    }
+    footer a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <div class="brand">Heures resto</div>
+      <div class="nav-actions">
+        <a class="btn btn-ghost" href="#pricing">Pricing</a>
+        <a class="btn btn-primary" id="navBuy" href="#pricing">Get Lifetime</a>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <h1>Heures resto</h1>
+      <p>
+        Your restaurant hours, on a real calendar — with after-tax estimates for France and many other countries.
+        Works in Chrome and on iPhone. Data stays on your device.
+      </p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" type="button" data-sku="lifetime">Buy Lifetime — €9</button>
+        <a class="btn btn-ghost" href="../app/">Open app</a>
+      </div>
+      <p class="note">Chrome: ⋮ → Install page &nbsp;·&nbsp; iPhone: Share → Add to Home Screen</p>
+    </header>
+
+    <section>
+      <h2>Built for service shifts</h2>
+      <p class="lead">Tap a day. Save hours. See brut, net, and after-tax. Next month opens itself.</p>
+      <div class="features">
+        <article class="feature">
+          <h3>Monthly calendar</h3>
+          <p>Auto-rolls to the new month. Past months stay saved on your phone.</p>
+        </article>
+        <article class="feature">
+          <h3>Multi-country tax</h3>
+          <p>France by default, plus presets you can edit to match your payslip.</p>
+        </article>
+        <article class="feature">
+          <h3>Dark & light</h3>
+          <p>Readable night mode by default, day mode one tap away.</p>
+        </article>
+        <article class="feature">
+          <h3>Private by design</h3>
+          <p>Hours don’t need an account. License key unlocks the app — shifts stay local.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <h2>Simple pricing</h2>
+      <p class="lead">Start with Lifetime. Or go month-to-month.</p>
+      <div class="pricing">
+        <article class="price featured">
+          <span class="badge">Best value</span>
+          <h3>Lifetime</h3>
+          <div class="amount">€9</div>
+          <ul>
+            <li>Full calendar & tax presets</li>
+            <li>Dark / light mode</li>
+            <li>On-device privacy</li>
+            <li>Pay once</li>
+          </ul>
+          <button class="btn btn-primary" type="button" data-sku="lifetime">Buy Lifetime</button>
+        </article>
+        <article class="price">
+          <span class="badge">Flexible</span>
+          <h3>Pro monthly</h3>
+          <div class="amount">€2,99</div>
+          <ul>
+            <li>Everything in Lifetime</li>
+            <li>Priority updates</li>
+            <li>Cancel anytime</li>
+          </ul>
+          <button class="btn btn-ghost" type="button" data-sku="pro_monthly">Start Pro</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      <details>
+        <summary>Is the tax calculation official?</summary>
+        <p>No. It’s an estimate to help you ballpark take-home pay. Always check your payslip / accountant.</p>
+      </details>
+      <details>
+        <summary>Where is my data stored?</summary>
+        <p>Hours are saved in your browser (localStorage). We only need your email for the license delivery via Stripe.</p>
+      </details>
+      <details>
+        <summary>Chrome or iPhone?</summary>
+        <p>Both. Install from Chrome’s menu, or Add to Home Screen on iPhone Safari.</p>
+      </details>
+    </section>
+
+    <footer>
+      <div>© Heures resto · Tax figures are estimates only.</div>
+      <div>
+        <a href="../app/">App</a> ·
+        <a href="../ARCHITECTURE.md">Architecture</a>
+      </div>
+      <div id="status"></div>
+    </footer>
+  </div>
+
+  <script>
+    // Configure per environment (Pages env can inject this later)
+    const API_URL = window.HEURES_API_URL || "http://127.0.0.1:8787";
+
+    async function buy(sku) {
+      const status = document.getElementById("status");
+      status.textContent = "Opening checkout…";
+      try {
+        const res = await fetch(`${API_URL}/api/checkout`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ sku }),
+        });
+        const data = await res.json();
+        if (data.url) {
+          location.href = data.url;
+          return;
+        }
+        if (data.mockCheckoutUrl) {
+          status.textContent = "Stripe not configured yet — opening demo unlock.";
+          location.href = data.mockCheckoutUrl;
+          return;
+        }
+        status.textContent = data.message || data.error || "Checkout failed";
+      } catch (e) {
+        status.textContent = "API offline. Start the worker or set HEURES_API_URL.";
+      }
+    }
+
+    document.querySelectorAll("[data-sku]").forEach((btn) => {
+      btn.addEventListener("click", () => buy(btn.dataset.sku));
+    });
+  </script>
+</body>
+</html>

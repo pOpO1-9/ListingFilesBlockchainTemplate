@@ -1,0 +1,15 @@
+name = "heures-resto-api"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+
+# Replace with: wrangler kv namespace create LICENSES
+[[kv_namespaces]]
+binding = "LICENSES"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+preview_id = "REPLACE_WITH_KV_PREVIEW_ID"
+
+[vars]
+PUBLIC_APP_URL = "https://app.heuresresto.com"
+PUBLIC_LANDING_URL = "https://heuresresto.com"
+DEV_UNLOCK_KEY = "HR-DEV-TEST-0001"
+# Stripe price IDs also set via `wrangler secret` in production

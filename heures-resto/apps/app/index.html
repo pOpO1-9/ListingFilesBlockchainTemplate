@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f1a15" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Heures resto" />
+  <title>Heures resto</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon-180.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script>
+    // Apply theme ASAP (default dark) to avoid flash
+    (function () {
+      try {
+        const t = JSON.parse(localStorage.getItem("heures-resto-app-v1") || "{}").theme;
+        document.documentElement.setAttribute("data-theme", t === "light" ? "light" : "dark");
+      } catch {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+    })();
+  </script>
+  <style>
+    /* Dark (default) — high contrast */
+    :root, html[data-theme="dark"] {
+      --bg: #0f1a15;
+      --bg2: #15241d;
+      --ink: #f7faf7;
+      --muted: #c5d5cb;
+      --line: #4d6a5c;
+      --card: #1c2f26;
+      --field: #243b30;
+      --accent: #b8e39a;
+      --accent-soft: #274834;
+      --accent-ink: #0f1a15;
+      --today: #3a3420;
+      --today-line: #e2c15a;
+      --off-bg: #18261f;
+      --off-line: #7f978a;
+      --danger: #ffb4b0;
+      --danger-bg: #3a2222;
+      --danger-line: #a86a66;
+      --shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+      --overlay: rgba(0, 0, 0, 0.55);
+      --theme-meta: #0f1a15;
+      font-family: "DM Sans", sans-serif;
+    }
+    /* Day mode */
+    html[data-theme="light"] {
+      --bg: #e8eef2;
+      --bg2: #dfe8ee;
+      --ink: #102018;
+      --muted: #2f453a;
+      --line: #9eb0a8;
+      --card: #ffffff;
+      --field: #f4f8f6;
+      --accent: #0b6b45;
+      --accent-soft: #d7f0e4;
+      --accent-ink: #ffffff;
+      --today: #fff3c4;
+      --today-line: #c9a227;
+      --off-bg: #f3f5f7;
+      --off-line: #7d8f87;
+      --danger: #a32020;
+      --danger-bg: #fff5f5;
+      --danger-line: #e0a0a0;
+      --shadow: 0 8px 24px rgba(16, 32, 24, 0.06);
+      --overlay: rgba(16, 32, 24, 0.45);
+      --theme-meta: #e8eef2;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      color: var(--ink);
+      background:
+        radial-gradient(900px 420px at 100% 0%, rgba(184, 227, 154, 0.14), transparent 55%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      padding: max(18px, env(safe-area-inset-top)) 14px max(40px, env(safe-area-inset-bottom));
+      -webkit-tap-highlight-color: transparent;
+    }
+    html[data-theme="light"] body {
+      background:
+        radial-gradient(900px 420px at 100% 0%, rgba(11, 107, 69, 0.10), transparent 55%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+    }
+    .wrap { width: min(480px, 100%); margin: 0 auto; }
+    .top {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: start;
+    }
+    h1 {
+      margin: 0;
+      font-family: "Fraunces", serif;
+      font-size: 2rem;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+    }
+    .sub { margin: 6px 0 0; color: var(--muted); font-size: 0.95rem; font-weight: 600; }
+    #themeToggle {
+      width: auto;
+      min-width: 96px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      background: var(--card);
+      color: var(--ink);
+      border: 1.5px solid var(--line);
+      white-space: nowrap;
+    }
+
+    .total {
+      margin: 16px 0 12px;
+      padding: 16px;
+      border: 1.5px solid var(--line);
+      border-radius: 18px;
+      background: var(--card);
+      display: grid;
+      gap: 10px;
+      box-shadow: var(--shadow);
+    }
+    .total .hours {
+      font-family: "Fraunces", serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .pay-grid { display: grid; gap: 8px; }
+    .pay-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+    }
+    .pay-row span { color: var(--muted); font-size: 0.95rem; font-weight: 600; }
+    .pay-row b {
+      font-family: "Fraunces", serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .pay-row.highlight b { color: var(--accent); font-size: 1.4rem; }
+    .hint { margin: 0; color: var(--muted); font-size: 0.82rem; line-height: 1.4; font-weight: 600; }
+
+    .month-bar {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 8px;
+      align-items: center;
+      margin: 4px 0 10px;
+    }
+    .month-bar h2 {
+      margin: 0;
+      text-align: center;
+      font-family: "Fraunces", serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-transform: capitalize;
+      color: var(--ink);
+    }
+    .month-bar button {
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      border-radius: 12px;
+      background: var(--card);
+      color: var(--ink);
+      border: 1.5px solid var(--line);
+      font-size: 1.2rem;
+    }
+
+    .cal {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .dow {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding-bottom: 2px;
+    }
+    .cell {
+      aspect-ratio: 1;
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      background: var(--card);
+      color: var(--ink);
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font: inherit;
+      cursor: pointer;
+      min-height: 48px;
+    }
+    .cell:disabled {
+      opacity: 0.22;
+      cursor: default;
+      background: transparent;
+      border-color: transparent;
+    }
+    .cell.today {
+      background: var(--today);
+      border-color: var(--today-line);
+      box-shadow: inset 0 0 0 1px var(--today-line);
+    }
+    .cell.work {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+    .cell.off {
+      background: var(--off-bg);
+      border-style: dashed;
+      border-color: var(--off-line);
+    }
+    .cell .n { font-size: 0.9rem; font-weight: 700; color: var(--ink); }
+    .cell .h {
+      font-family: "Fraunces", serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .cell.off .h { color: var(--muted); }
+
+    .rates { display: grid; gap: 8px; margin-bottom: 12px; }
+    .rate {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--ink);
+      font-size: 0.95rem;
+      font-weight: 600;
+      background: var(--card);
+      border: 1.5px solid var(--line);
+      border-radius: 14px;
+      padding: 8px 10px;
+    }
+    .rate input, .rate select {
+      font: inherit;
+      font-weight: 600;
+      color: var(--ink);
+      background: var(--field);
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .rate select option {
+      color: var(--ink);
+      background: var(--card);
+    }
+    .rate input { width: 5.5rem; }
+    .rate select { width: min(58%, 220px); max-width: 220px; }
+
+    .day-list { display: grid; gap: 8px; margin-top: 4px; }
+    .day-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 8px;
+      align-items: center;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1.5px solid var(--line);
+      background: var(--card);
+      color: var(--ink);
+    }
+    .day-row.off { background: var(--off-bg); border-style: dashed; }
+    .day-row b { font-weight: 700; color: var(--ink); }
+    .day-row small { display: block; color: var(--muted); font-size: 0.82rem; margin-top: 2px; font-weight: 600; }
+    .day-row .hrs {
+      font-family: "Fraunces", serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      min-width: 3.5ch;
+      text-align: right;
+      color: var(--ink);
+    }
+    .day-row .pay {
+      color: var(--accent);
+      font-weight: 700;
+      min-width: 4.5rem;
+      text-align: right;
+      font-size: 0.95rem;
+    }
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 16px 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    button {
+      font: inherit;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      padding: 12px;
+      cursor: pointer;
+      background: var(--accent);
+      color: var(--accent-ink);
+    }
+    button.ghost {
+      background: var(--card);
+      color: var(--ink);
+      border: 1.5px solid var(--line);
+    }
+    button.danger {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1.5px solid var(--danger-line);
+    }
+
+    .sheet-bg {
+      position: fixed;
+      inset: 0;
+      background: var(--overlay);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 14px;
+      z-index: 20;
+    }
+    .sheet-bg.show { display: flex; }
+    .sheet {
+      width: min(480px, 100%);
+      background: var(--card);
+      color: var(--ink);
+      border: 1.5px solid var(--line);
+      border-radius: 20px;
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+      box-shadow: var(--shadow);
+    }
+    .sheet h3 {
+      margin: 0;
+      font-family: "Fraunces", serif;
+      font-size: 1.3rem;
+      color: var(--ink);
+    }
+    .sheet .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--ink);
+      font-weight: 600;
+    }
+    .sheet input[type="number"] {
+      width: 6rem;
+      font: inherit;
+      font-family: "Fraunces", serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-align: right;
+      color: var(--ink);
+      background: var(--field);
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .sheet .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .ios-banner {
+      display: none;
+      margin-bottom: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1.5px solid var(--accent);
+      background: var(--accent-soft);
+      color: var(--ink);
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+    .ios-banner.show { display: block; }
+    .ios-banner button {
+      margin-top: 8px;
+      padding: 8px 10px;
+      font-size: 0.85rem;
+      background: var(--card);
+      color: var(--ink);
+      border: 1.5px solid var(--line);
+    }
+
+    #appRoot.locked { display: none; }
+    .paywall {
+      display: none;
+      width: min(480px, 100%);
+      margin: 0 auto;
+      padding: max(18px, env(safe-area-inset-top)) 14px max(40px, env(safe-area-inset-bottom));
+    }
+    .paywall.show { display: block; }
+    .paywall .card {
+      background: var(--card);
+      border: 1.5px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+      box-shadow: var(--shadow);
+    }
+    .paywall h1 {
+      margin: 0;
+      font-family: "Fraunces", serif;
+      font-size: 2rem;
+    }
+    .paywall p { margin: 0; color: var(--muted); font-weight: 600; line-height: 1.4; }
+    .paywall input {
+      width: 100%;
+      font: inherit;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--ink);
+      background: var(--field);
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .paywall .err { color: var(--danger); font-weight: 700; min-height: 1.2em; }
+    .paywall .actions { display: grid; gap: 8px; }
+  </style>
+</head>
+<body>
+  <div id="paywall" class="paywall" aria-live="polite">
+    <div class="card">
+      <h1>Heures resto</h1>
+      <p>Enter your license key to unlock the calendar. Buy once on the website if you don’t have one yet.</p>
+      <input id="licenseInput" type="text" autocomplete="off" spellcheck="false" placeholder="HR-XXXX-XXXX-XXXX" />
+      <div class="err" id="licenseErr"></div>
+      <div class="actions">
+        <button type="button" id="licenseUnlock">Unlock</button>
+        <a class="ghost" id="licenseBuy" href="../landing/" style="text-align:center;text-decoration:none;display:block;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font-weight:700">Buy license</a>
+        <button type="button" class="ghost" id="licenseDemo">Continue with demo key</button>
+      </div>
+      <p style="font-size:0.85rem">Chrome: install this page as an app after unlock.</p>
+    </div>
+  </div>
+
+  <div id="appRoot" class="wrap locked">
+    <div id="iosBanner" class="ios-banner">
+      iPhone: Partager ↑ → <b>Sur l’écran d’accueil</b>
+      <br /><button type="button" id="dismissIos">OK</button>
+    </div>
+
+    <div class="top">
+      <div>
+        <h1>Heures resto</h1>
+        <p class="sub" id="subtitle">Calendrier mensuel · sauvegarde auto</p>
+      </div>
+      <button type="button" id="themeToggle" class="ghost" aria-label="Changer le thème">Jour</button>
+    </div>
+
+    <section class="total" aria-live="polite">
+      <div class="hours" id="hoursLine">0 h</div>
+      <div class="pay-grid">
+        <div class="pay-row"><span>Brut</span><b id="brut">0 €</b></div>
+        <div class="pay-row"><span>Net (après charges)</span><b id="net">0 €</b></div>
+        <div class="pay-row highlight"><span>Après impôts</span><b id="afterTax">0 €</b></div>
+      </div>
+      <p class="hint" id="summarySub">Ce mois-ci</p>
+    </section>
+
+    <div class="month-bar">
+      <button type="button" id="prevMonth" aria-label="Mois précédent">‹</button>
+      <h2 id="monthTitle">—</h2>
+      <button type="button" id="nextMonth" aria-label="Mois suivant">›</button>
+    </div>
+
+    <div id="cal" class="cal" aria-label="Calendrier"></div>
+
+    <div class="rates">
+      <label class="rate">Pays
+        <select id="country"></select>
+      </label>
+      <label class="rate">Taux (€/h)
+        <input id="rate" type="number" min="0" step="0.5" value="12" inputmode="decimal" />
+      </label>
+      <label class="rate"><span id="cotisLabel">Cotisations (%)</span>
+        <input id="cotis" type="number" min="0" max="100" step="0.1" value="22" inputmode="decimal" />
+      </label>
+      <label class="rate"><span id="pasLabel">Impôt (%)</span>
+        <input id="pas" type="number" min="0" max="100" step="0.1" value="0" inputmode="decimal" />
+      </label>
+    </div>
+
+    <div id="dayList" class="day-list"></div>
+  </div>
+
+  <div id="sheetBg" class="sheet-bg" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <h3 id="sheetTitle">Jour</h3>
+      <div class="row">
+        <span>Heures</span>
+        <input id="sheetHours" type="number" min="0" step="0.5" value="9" inputmode="decimal" />
+      </div>
+      <div class="actions">
+        <button type="button" id="sheetSave">Enregistrer</button>
+        <button type="button" class="ghost" id="sheetOff">Off (0h)</button>
+      </div>
+      <div class="actions">
+        <button type="button" class="danger" id="sheetClear">Effacer</button>
+        <button type="button" class="ghost" id="sheetClose">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./license.js"></script>
+  <script>
+    const STORAGE_KEY = "heures-resto-app-v1";
+    const DAYS_FR = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+    const DOW = ["L", "M", "M", "J", "V", "S", "D"]; // Monday-first
+    const MONTHS_FR = [
+      "janvier", "février", "mars", "avril", "mai", "juin",
+      "juillet", "août", "septembre", "octobre", "novembre", "décembre",
+    ];
+
+    const COUNTRIES = [
+      { id: "FR", name: "France", social: 22, tax: 0, socialLabel: "Cotisations salariales (%)", taxLabel: "Impôt PAS (%)", note: "salarié non-cadre (approx.)" },
+      { id: "BE", name: "Belgique", social: 13.1, tax: 25, socialLabel: "ONSS salarié (%)", taxLabel: "Précompte pro. (%)", note: "approx. employé" },
+      { id: "CH", name: "Suisse", social: 6.4, tax: 12, socialLabel: "AVS/AI/APG + chôm. (%)", taxLabel: "Impôts (approx.) (%)", note: "varie fort par canton" },
+      { id: "DE", name: "Allemagne", social: 20, tax: 14, socialLabel: "Sozialabgaben (%)", taxLabel: "Lohnsteuer (approx.) (%)", note: "approx. Arbeitnehmer" },
+      { id: "ES", name: "Espagne", social: 6.5, tax: 12, socialLabel: "Seg. Social empleado (%)", taxLabel: "IRPF (%)", note: "approx." },
+      { id: "IT", name: "Italie", social: 9.2, tax: 15, socialLabel: "Contributi (%)", taxLabel: "IRPEF (approx.) (%)", note: "approx." },
+      { id: "PT", name: "Portugal", social: 11, tax: 10, socialLabel: "Segurança Social (%)", taxLabel: "IRS (%)", note: "approx." },
+      { id: "NL", name: "Pays-Bas", social: 0, tax: 28, socialLabel: "Premies werknemer (%)", taxLabel: "Loonheffing (approx.) (%)", note: "souvent via loonheffing" },
+      { id: "LU", name: "Luxembourg", social: 12.5, tax: 10, socialLabel: "Cotisations (%)", taxLabel: "Impôt (%)", note: "approx." },
+      { id: "GB", name: "Royaume-Uni", social: 8, tax: 20, socialLabel: "Employee NI (%)", taxLabel: "Income tax (basic) (%)", note: "approx. PAYE" },
+      { id: "IE", name: "Irlande", social: 4, tax: 20, socialLabel: "Employee PRSI (%)", taxLabel: "Income tax (%)", note: "approx. + USC non inclus" },
+      { id: "US", name: "États-Unis", social: 7.65, tax: 12, socialLabel: "FICA (%)", taxLabel: "Federal tax (approx.) (%)", note: "sans state tax" },
+      { id: "CA", name: "Canada", social: 7.5, tax: 15, socialLabel: "CPP/EI (approx.) (%)", taxLabel: "Income tax (%)", note: "varie par province" },
+      { id: "AU", name: "Australie", social: 0, tax: 19, socialLabel: "Employee super (%)", taxLabel: "PAYG tax (%)", note: "super souvent payé par l’employeur" },
+      { id: "NZ", name: "Nouvelle-Zélande", social: 0, tax: 17.5, socialLabel: "KiwiSaver employee (%)", taxLabel: "PAYE (%)", note: "KiwiSaver optionnel" },
+      { id: "JP", name: "Japon", social: 15, tax: 10, socialLabel: "Social insurance (%)", taxLabel: "Income tax (%)", note: "approx." },
+      { id: "KR", name: "Corée du Sud", social: 9.5, tax: 8, socialLabel: "Social insurance (%)", taxLabel: "Income tax (%)", note: "approx." },
+      { id: "SG", name: "Singapour", social: 20, tax: 5, socialLabel: "CPF employee (%)", taxLabel: "Income tax (%)", note: "approx. résident" },
+      { id: "AE", name: "Émirats (UAE)", social: 0, tax: 0, socialLabel: "Social (%)", taxLabel: "Income tax (%)", note: "souvent 0% pour salariés" },
+      { id: "QA", name: "Qatar", social: 0, tax: 0, socialLabel: "Social (%)", taxLabel: "Income tax (%)", note: "souvent 0%" },
+      { id: "SA", name: "Arabie saoudite", social: 9.75, tax: 0, socialLabel: "GOSI employee (%)", taxLabel: "Income tax (%)", note: "approx." },
+      { id: "MA", name: "Maroc", social: 6.7, tax: 10, socialLabel: "CNSS salarié (%)", taxLabel: "IR (%)", note: "approx." },
+      { id: "TN", name: "Tunisie", social: 9.2, tax: 15, socialLabel: "CNSS (%)", taxLabel: "IRPP (%)", note: "approx." },
+      { id: "DZ", name: "Algérie", social: 9, tax: 10, socialLabel: "Cotisations (%)", taxLabel: "IRG (%)", note: "approx." },
+      { id: "BR", name: "Brésil", social: 8, tax: 7.5, socialLabel: "INSS (%)", taxLabel: "IRPF (%)", note: "approx." },
+      { id: "MX", name: "Mexique", social: 2.8, tax: 10, socialLabel: "IMSS empleado (%)", taxLabel: "ISR (%)", note: "approx." },
+      { id: "AR", name: "Argentine", social: 17, tax: 9, socialLabel: "Aportes (%)", taxLabel: "Ganancias (%)", note: "approx." },
+      { id: "PL", name: "Pologne", social: 13.7, tax: 12, socialLabel: "ZUS pracownik (%)", taxLabel: "PIT (%)", note: "approx." },
+      { id: "CZ", name: "Tchéquie", social: 11.6, tax: 15, socialLabel: "Social + health (%)", taxLabel: "Income tax (%)", note: "approx." },
+      { id: "RO", name: "Roumanie", social: 35, tax: 10, socialLabel: "CAS/CASS (%)", taxLabel: "Income tax (%)", note: "approx. salarié" },
+      { id: "SE", name: "Suède", social: 7, tax: 30, socialLabel: "Employee fees (%)", taxLabel: "Kommunalskatt (approx.) (%)", note: "approx." },
+      { id: "NO", name: "Norvège", social: 7.8, tax: 22, socialLabel: "Trygdeavgift (%)", taxLabel: "Skatt (%)", note: "approx." },
+      { id: "DK", name: "Danemark", social: 8, tax: 38, socialLabel: "AM-bidrag (%)", taxLabel: "Skat (approx.) (%)", note: "approx." },
+      { id: "FI", name: "Finlande", social: 10, tax: 20, socialLabel: "Employee side (%)", taxLabel: "Tax (%)", note: "approx." },
+      { id: "AT", name: "Autriche", social: 18, tax: 12, socialLabel: "SV-Beiträge (%)", taxLabel: "Lohnsteuer (%)", note: "approx." },
+      { id: "GR", name: "Grèce", social: 13.9, tax: 9, socialLabel: "EFKA employee (%)", taxLabel: "Income tax (%)", note: "approx." },
+      { id: "TR", name: "Turquie", social: 15, tax: 15, socialLabel: "SGK işçi (%)", taxLabel: "Gelir vergisi (%)", note: "approx." },
+      { id: "IN", name: "Inde", social: 12, tax: 5, socialLabel: "PF employee (%)", taxLabel: "Income tax (%)", note: "approx." },
+      { id: "CUSTOM", name: "Personnalisé", social: 22, tax: 0, socialLabel: "Charges / social (%)", taxLabel: "Impôt (%)", note: "entre tes propres %" },
+    ];
+
+    // Seed: from 1 Aug 2026
+    const SEED_DAYS = {};
+
+    function monthKey(d = new Date()) {
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function isoFromParts(y, m0, day) {
+      return `${y}-${String(m0 + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    }
+
+    function parseMonth(key) {
+      const [y, m] = key.split("-").map(Number);
+      return { y, m0: m - 1 };
+    }
+
+    function shiftMonth(key, delta) {
+      const { y, m0 } = parseMonth(key);
+      const d = new Date(y, m0 + delta, 1);
+      return monthKey(d);
+    }
+
+    function countryById(id) {
+      return COUNTRIES.find((c) => c.id === id) || COUNTRIES[0];
+    }
+
+    function defaults() {
+      const now = monthKey();
+      return {
+        theme: "dark",
+        country: "FR",
+        rate: 12,
+        cotis: 22,
+        pas: 0,
+        days: { ...SEED_DAYS },
+        seeded: true,
+        viewMonth: now,
+        autoMonth: now,
+      };
+    }
+
+    function migrateOld() {
+      const keys = ["resto-hours-v4-countries", "resto-hours-v3-aug2026-tax", "resto-hours-v2-aug2026"];
+      for (const k of keys) {
+        try {
+          const raw = localStorage.getItem(k);
+          if (!raw) continue;
+          const old = JSON.parse(raw);
+          if (!old.shifts?.length) continue;
+          const days = { ...SEED_DAYS };
+          for (const s of old.shifts) {
+            if (s.date != null) days[s.date] = Number(s.hours) || 0;
+          }
+          return {
+            country: old.country || "FR",
+            rate: old.rate ?? 12,
+            cotis: old.cotis ?? 22,
+            pas: old.pas ?? 0,
+            days,
+            seeded: true,
+            viewMonth: monthKey(),
+            autoMonth: monthKey(),
+          };
+        } catch {}
+      }
+      return null;
+    }
+
+    function load() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          const base = defaults();
+          const days = parsed.seeded
+            ? { ...(parsed.days || {}) }
+            : { ...SEED_DAYS, ...(parsed.days || {}) };
+          return { ...base, ...parsed, days, seeded: true };
+        }
+      } catch {}
+      return migrateOld() || defaults();
+    }
+
+    let state = load();
+    let selectedDate = null;
+
+    const els = {
+      country: document.getElementById("country"),
+      rate: document.getElementById("rate"),
+      cotis: document.getElementById("cotis"),
+      pas: document.getElementById("pas"),
+      cal: document.getElementById("cal"),
+      dayList: document.getElementById("dayList"),
+      hoursLine: document.getElementById("hoursLine"),
+      brut: document.getElementById("brut"),
+      net: document.getElementById("net"),
+      afterTax: document.getElementById("afterTax"),
+      summarySub: document.getElementById("summarySub"),
+      subtitle: document.getElementById("subtitle"),
+      monthTitle: document.getElementById("monthTitle"),
+      cotisLabel: document.getElementById("cotisLabel"),
+      pasLabel: document.getElementById("pasLabel"),
+      sheetBg: document.getElementById("sheetBg"),
+      sheetTitle: document.getElementById("sheetTitle"),
+      sheetHours: document.getElementById("sheetHours"),
+      themeToggle: document.getElementById("themeToggle"),
+      themeMeta: document.querySelector('meta[name="theme-color"]'),
+      statusBar: document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]'),
+    };
+
+    els.country.innerHTML = COUNTRIES.map((c) => `<option value="${c.id}">${c.name}</option>`).join("");
+    els.country.value = state.country || "FR";
+    els.rate.value = state.rate;
+    els.cotis.value = state.cotis;
+    els.pas.value = state.pas;
+
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function applyTheme() {
+      const theme = state.theme === "light" ? "light" : "dark";
+      state.theme = theme;
+      document.documentElement.setAttribute("data-theme", theme);
+      els.themeToggle.textContent = theme === "dark" ? "Jour" : "Nuit";
+      els.themeToggle.setAttribute(
+        "aria-label",
+        theme === "dark" ? "Passer en mode jour" : "Passer en mode nuit"
+      );
+      if (els.themeMeta) {
+        els.themeMeta.setAttribute("content", theme === "dark" ? "#0f1a15" : "#e8eef2");
+      }
+      if (els.statusBar) {
+        els.statusBar.setAttribute(
+          "content",
+          theme === "dark" ? "black-translucent" : "default"
+        );
+      }
+    }
+
+    els.themeToggle.addEventListener("click", () => {
+      state.theme = state.theme === "dark" ? "light" : "dark";
+      applyTheme();
+      save();
+    });
+
+    function applyCountryLabels() {
+      const c = countryById(state.country);
+      els.cotisLabel.textContent = c.socialLabel;
+      els.pasLabel.textContent = c.taxLabel;
+      els.subtitle.textContent = `Calendrier · ${c.name} · sauvegarde auto`;
+    }
+
+    function money(n) {
+      return new Intl.NumberFormat("fr-FR", {
+        style: "currency",
+        currency: "EUR",
+        maximumFractionDigits: 0,
+      }).format(Math.round(n));
+    }
+
+    function calc(brut) {
+      const cotis = Math.min(100, Math.max(0, Number(state.cotis) || 0));
+      const pas = Math.min(100, Math.max(0, Number(state.pas) || 0));
+      const net = brut * (1 - cotis / 100);
+      const afterTax = net * (1 - pas / 100);
+      return { net, afterTax, cotis, pas };
+    }
+
+    function monthDays(key) {
+      return Object.entries(state.days)
+        .filter(([iso]) => iso.startsWith(key))
+        .sort((a, b) => a[0].localeCompare(b[0]));
+    }
+
+    /** Auto-jump to the real current month when the calendar month changes. */
+    function syncAutoMonth() {
+      const now = monthKey();
+      if (state.autoMonth !== now) {
+        state.autoMonth = now;
+        state.viewMonth = now;
+        save();
+        return true;
+      }
+      return false;
+    }
+
+    function openSheet(iso) {
+      selectedDate = iso;
+      const dt = new Date(iso + "T12:00:00");
+      const label = `${DAYS_FR[dt.getDay()]} ${String(dt.getDate()).padStart(2, "0")}/${String(dt.getMonth() + 1).padStart(2, "0")}`;
+      els.sheetTitle.textContent = label;
+      const existing = state.days[iso];
+      els.sheetHours.value = existing == null ? 9 : existing;
+      els.sheetBg.classList.add("show");
+      els.sheetHours.focus();
+    }
+
+    function closeSheet() {
+      selectedDate = null;
+      els.sheetBg.classList.remove("show");
+    }
+
+    function setDay(iso, hours) {
+      if (hours == null) delete state.days[iso];
+      else state.days[iso] = Math.max(0, Number(hours) || 0);
+      save();
+      closeSheet();
+      render();
+    }
+
+    function renderCalendar() {
+      const { y, m0 } = parseMonth(state.viewMonth);
+      const first = new Date(y, m0, 1);
+      const daysInMonth = new Date(y, m0 + 1, 0).getDate();
+      // Monday-first index: Mon=0 ... Sun=6
+      let start = first.getDay() - 1;
+      if (start < 0) start = 6;
+      const todayIso = (() => {
+        const t = new Date();
+        return isoFromParts(t.getFullYear(), t.getMonth(), t.getDate());
+      })();
+
+      els.monthTitle.textContent = `${MONTHS_FR[m0]} ${y}`;
+
+      let html = DOW.map((d) => `<div class="dow">${d}</div>`).join("");
+      for (let i = 0; i < start; i++) {
+        html += `<button type="button" class="cell" disabled aria-hidden="true"></button>`;
+      }
+      for (let day = 1; day <= daysInMonth; day++) {
+        const iso = isoFromParts(y, m0, day);
+        const val = state.days[iso];
+        const has = val != null;
+        const off = has && Number(val) === 0;
+        const work = has && Number(val) > 0;
+        const cls = [
+          "cell",
+          iso === todayIso ? "today" : "",
+          work ? "work" : "",
+          off ? "off" : "",
+        ].filter(Boolean).join(" ");
+        const hTxt = !has ? "" : off ? "off" : `${String(val).replace(".", ",")}h`;
+        html += `<button type="button" class="${cls}" data-iso="${iso}">
+          <span class="n">${day}</span>
+          ${hTxt ? `<span class="h">${hTxt}</span>` : ""}
+        </button>`;
+      }
+      els.cal.innerHTML = html;
+    }
+
+    function render() {
+      syncAutoMonth();
+      applyCountryLabels();
+      renderCalendar();
+
+      const c = countryById(state.country);
+      const rate = Number(state.rate) || 0;
+      const entries = monthDays(state.viewMonth);
+      const worked = entries.filter(([, h]) => Number(h) > 0);
+      const hours = worked.reduce((a, [, h]) => a + Number(h || 0), 0);
+      const brut = hours * rate;
+      const { net, afterTax, cotis, pas } = calc(brut);
+      const { m0, y } = parseMonth(state.viewMonth);
+
+      els.hoursLine.textContent = `${String(hours).replace(".", ",")} h`;
+      els.brut.textContent = money(brut);
+      els.net.textContent = money(net);
+      els.afterTax.textContent = money(afterTax);
+      els.summarySub.textContent =
+        `${MONTHS_FR[m0]} ${y} · ${worked.length} jours · ${c.name} · charges ${String(cotis).replace(".", ",")}% · impôt ${String(pas).replace(".", ",")}% · ${c.note}`;
+
+      if (!entries.length) {
+        els.dayList.innerHTML = `<div class="empty">Touche un jour du calendrier pour ajouter des heures.</div>`;
+        return;
+      }
+
+      els.dayList.innerHTML = entries
+        .map(([iso, h]) => {
+          const dt = new Date(iso + "T12:00:00");
+          const off = Number(h) === 0;
+          const takeHome = calc(Number(h) * rate).afterTax;
+          return `
+            <button type="button" class="day-row ${off ? "off" : ""}" data-iso="${iso}" style="width:100%;text-align:left">
+              <div>
+                <b>${String(dt.getDate()).padStart(2, "0")}/${String(dt.getMonth() + 1).padStart(2, "0")} · ${DAYS_FR[dt.getDay()]}</b>
+                <small>${off ? "Off" : "Travail"}</small>
+              </div>
+              <div class="hrs">${off ? "off" : String(h).replace(".", ",") + "h"}</div>
+              <div class="pay">${off ? "—" : money(takeHome)}</div>
+            </button>
+          `;
+        })
+        .join("");
+    }
+
+    els.cal.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-iso]");
+      if (!btn || btn.disabled) return;
+      openSheet(btn.dataset.iso);
+    });
+
+    els.dayList.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-iso]");
+      if (!btn) return;
+      openSheet(btn.dataset.iso);
+    });
+
+    document.getElementById("prevMonth").addEventListener("click", () => {
+      state.viewMonth = shiftMonth(state.viewMonth, -1);
+      save();
+      render();
+    });
+    document.getElementById("nextMonth").addEventListener("click", () => {
+      state.viewMonth = shiftMonth(state.viewMonth, 1);
+      save();
+      render();
+    });
+
+    document.getElementById("sheetSave").addEventListener("click", () => {
+      if (!selectedDate) return;
+      setDay(selectedDate, els.sheetHours.value);
+    });
+    document.getElementById("sheetOff").addEventListener("click", () => {
+      if (!selectedDate) return;
+      setDay(selectedDate, 0);
+    });
+    document.getElementById("sheetClear").addEventListener("click", () => {
+      if (!selectedDate) return;
+      setDay(selectedDate, null);
+    });
+    document.getElementById("sheetClose").addEventListener("click", closeSheet);
+    els.sheetBg.addEventListener("click", (e) => {
+      if (e.target === els.sheetBg) closeSheet();
+    });
+
+    els.country.addEventListener("change", () => {
+      const c = countryById(els.country.value);
+      state.country = c.id;
+      state.cotis = c.social;
+      state.pas = c.tax;
+      els.cotis.value = c.social;
+      els.pas.value = c.tax;
+      save();
+      render();
+    });
+
+    function bindNum(id, key) {
+      els[id].addEventListener("input", () => {
+        state[key] = Number(els[id].value) || 0;
+        save();
+        render();
+      });
+    }
+    bindNum("rate", "rate");
+    bindNum("cotis", "cotis");
+    bindNum("pas", "pas");
+
+    // Rollover check: when app opens, gains focus, or every minute
+    function tickMonth() {
+      if (syncAutoMonth()) render();
+    }
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") tickMonth();
+    });
+    window.addEventListener("focus", tickMonth);
+    setInterval(tickMonth, 60_000);
+
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches ||
+      navigator.standalone === true;
+    const banner = document.getElementById("iosBanner");
+    if (isIos && !isStandalone && !localStorage.getItem("resto-ios-tip-done")) {
+      banner.classList.add("show");
+    }
+    document.getElementById("dismissIos").addEventListener("click", () => {
+      localStorage.setItem("resto-ios-tip-done", "1");
+      banner.classList.remove("show");
+    });
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    }
+
+    function showApp() {
+      document.getElementById("paywall").classList.remove("show");
+      document.getElementById("appRoot").classList.remove("locked");
+      state.viewMonth = monthKey();
+      state.autoMonth = monthKey();
+      if (state.theme !== "light") state.theme = "dark";
+      applyTheme();
+      save();
+      render();
+    }
+
+    function showPaywall(msg) {
+      document.getElementById("paywall").classList.add("show");
+      document.getElementById("appRoot").classList.add("locked");
+      if (msg) document.getElementById("licenseErr").textContent = msg;
+    }
+
+    async function tryUnlock(key) {
+      const err = document.getElementById("licenseErr");
+      err.textContent = "Checking…";
+      const result = await HeuresLicense.validate(key);
+      if (result.ok) {
+        err.textContent = "";
+        showApp();
+        return;
+      }
+      if (result.error === "offline" && result.cached) {
+        err.textContent = "";
+        showApp();
+        return;
+      }
+      err.textContent =
+        result.error === "offline"
+          ? "Offline — connect once to unlock."
+          : "Invalid key. Check and try again.";
+    }
+
+    document.getElementById("licenseUnlock").addEventListener("click", () => {
+      tryUnlock(document.getElementById("licenseInput").value);
+    });
+    document.getElementById("licenseDemo").addEventListener("click", async () => {
+      // Works when Worker has DEV_UNLOCK_KEY=HR-DEV-TEST-0001, or local demo fallback:
+      const key = "HR-DEV-TEST-0001";
+      const result = await HeuresLicense.validate(key);
+      if (result.ok) return showApp();
+      // Local architecture demo without API
+      HeuresLicense.write({
+        ok: true,
+        key,
+        plan: "lifetime",
+        status: "active",
+        checkedAt: new Date().toISOString(),
+        demo: true,
+      });
+      showApp();
+    });
+
+    (async function boot() {
+      const qKey = HeuresLicense.fromQuery();
+      if (qKey) {
+        document.getElementById("licenseInput").value = qKey;
+        await tryUnlock(qKey);
+        if (HeuresLicense.read()?.ok) return;
+      }
+      const licensed = await HeuresLicense.ensureLicensed();
+      if (licensed.ok) showApp();
+      else showPaywall("");
+    })();
+  </script>
+</body>
+</html>

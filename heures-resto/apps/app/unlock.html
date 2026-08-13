@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0f1a15" />
+  <title>Unlock — Heures resto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=DM+Sans:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f1a15; --ink: #f7faf7; --muted: #c5d5cb; --line: #4d6a5c;
+      --card: #1c2f26; --accent: #b8e39a; --accent-ink: #0f1a15;
+      font-family: "DM Sans", sans-serif;
+    }
+    body {
+      margin: 0; min-height: 100vh; color: var(--ink);
+      background: linear-gradient(165deg, var(--bg), #15241d);
+      display: grid; place-items: center; padding: 20px;
+    }
+    .card {
+      width: min(420px, 100%); background: var(--card); border: 1.5px solid var(--line);
+      border-radius: 18px; padding: 22px; display: grid; gap: 12px;
+    }
+    h1 { margin: 0; font-family: "Fraunces", serif; font-size: 1.8rem; }
+    p { margin: 0; color: var(--muted); font-weight: 600; line-height: 1.4; }
+    .key {
+      font-family: ui-monospace, monospace; font-size: 1.1rem; font-weight: 700;
+      letter-spacing: 0.06em; padding: 12px; border-radius: 12px;
+      background: #243b30; border: 1.5px solid var(--line); word-break: break-all;
+    }
+    a.btn, button {
+      display: block; text-align: center; text-decoration: none; font: inherit; font-weight: 700;
+      border: none; border-radius: 12px; padding: 12px; cursor: pointer;
+      background: var(--accent); color: var(--accent-ink);
+    }
+    button.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>You’re in</h1>
+    <p id="msg">Fetching your license key…</p>
+    <div class="key" id="keyBox">—</div>
+    <button type="button" id="copyBtn" class="ghost">Copy key</button>
+    <a class="btn" id="openApp" href="./">Open Heures resto</a>
+  </div>
+  <script src="./license.js"></script>
+  <script>
+    const API = HeuresLicense.apiBase();
+    const params = new URLSearchParams(location.search);
+    const msg = document.getElementById("msg");
+    const keyBox = document.getElementById("keyBox");
+    const openApp = document.getElementById("openApp");
+
+    async function run() {
+      if (params.get("demo") === "1") {
+        const key = "HR-DEV-TEST-0001";
+        keyBox.textContent = key;
+        msg.textContent = "Demo mode (Stripe not configured yet).";
+        HeuresLicense.write({
+          ok: true, key, plan: params.get("sku") || "lifetime", status: "active",
+          checkedAt: new Date().toISOString(), demo: true,
+        });
+        openApp.href = `./?key=${encodeURIComponent(key)}`;
+        return;
+      }
+
+      const sessionId = params.get("session_id");
+      if (!sessionId) {
+        msg.textContent = "Missing session. If you already have a key, open the app and paste it.";
+        return;
+      }
+
+      // Poll webhook result briefly
+      for (let i = 0; i < 8; i++) {
+        try {
+          const res = await fetch(`${API}/api/license/by-session?session_id=${encodeURIComponent(sessionId)}`);
+          const data = await res.json();
+          if (data.ok && data.key) {
+            keyBox.textContent = data.key;
+            msg.textContent = "Save this key — you’ll need it if you switch phones.";
+            await HeuresLicense.validate(data.key);
+            openApp.href = `./?key=${encodeURIComponent(data.key)}`;
+            return;
+          }
+        } catch {}
+        await new Promise((r) => setTimeout(r, 700));
+      }
+      msg.textContent = "License not ready yet. Wait a few seconds and refresh, or check your email receipt.";
+    }
+
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      const key = keyBox.textContent.trim();
+      if (!key || key === "—") return;
+      try { await navigator.clipboard.writeText(key); msg.textContent = "Copied."; } catch {}
+    });
+
+    run();
+  </script>
+</body>
+</html>
